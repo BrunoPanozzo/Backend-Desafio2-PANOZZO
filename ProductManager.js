@@ -1,7 +1,7 @@
+
 const fs = require('fs')
 
 class ProductManager {
-
     //variables internas
     #products
     static #lastID_Product = 0
@@ -13,10 +13,9 @@ class ProductManager {
     }
 
     inicializar = async () => {
-
         this.#products = await this.getProducts()
         ProductManager.#lastID_Product = this.#getHigherID()
-        console.log('inicio en ' + ProductManager.#lastID_Product)
+        console.log('Inicio ID de productos en ' + ProductManager.#lastID_Product)
     }
 
     //métodos internos
@@ -45,8 +44,8 @@ class ProductManager {
         return (/^[0-9]+$/.test(cadena))
     }
 
+    //leer el archivo de productos e inicializar el array de objetos
     async #readProductsFromFile() {
-        //primero leo el archivo de productos
         try {
             const fileProductsContent = await fs.promises.readFile(this.path)
             this.#products = JSON.parse(fileProductsContent)
@@ -56,12 +55,13 @@ class ProductManager {
         }
     }
 
+    //guardar el array de productos en un archivo
     async #updateProductsFile() {
-        //guardar el arreglo en un archivo
         const fileProductsContent = JSON.stringify(this.#products, null, '\t')
         await fs.promises.writeFile(this.path, fileProductsContent)
     }
 
+    //validar los campos de un "objeto" producto
     #validFields(title, description, price, thumbnail, code, stock) {
         //validar que el campo "title" no esté vacío        
         if (title.trim().length <= 0) {
@@ -98,21 +98,20 @@ class ProductManager {
     }
 
     //métodos públicos
-    //devolver todo el arreglo de productos
+    //devolver todo el arreglo de productos leidos a partir de un archivo de productos
     getProducts = async () => {
         try {
             await this.#readProductsFromFile()
             return this.#products
         }
         catch (err) {
-            console.log('El archivo no existe, retorno array vacío')
+            console.log('El archivo no existe')
             return []
         }
     }
 
-    //dado un ID buscar en el arreglo de productos un producto con dicho ID, caso contrario devolver msje de error
+    //buscar en el arreglo de productos un producto con un ID determinado. Caso contrario devolver msje de error
     getProductById = (prodId) => {
-        // const arrayProductsTemp = await this.getProducts()
         const producto = this.#products.find(item => item.id === prodId)
         if (producto)
             return producto
@@ -122,9 +121,8 @@ class ProductManager {
         }
     }
 
-    //permite agregar un producto al arreglo de productos inicial si cumple con ciertas validaciones
+    //agregar, si sus campos de datos son válidos, un producto al arreglo de productos inicial y al archivo correspondiente
     addProduct = async (title, description, price, thumbnail, code, stock) => {
-
         if (this.#validFields(title, description, price, thumbnail, code, stock)) {
             //antes de agregar el producto, verificar que el campo "code" no se repita
             const producto = this.#products.find(item => item.code === code)
@@ -150,10 +148,8 @@ class ProductManager {
         }
     }
 
-
-    //permite actualizar un producto al arreglo de productos inicial si cumple con ciertas validaciones
+    //actualizar, si sus campos modificados son válidos, un producto en el arreglo de productos inicial y en el archivo correspondiente
     updateProduct = async (product) => {
-
         if (this.#validFields(product.title, product.description, product.price, product.thumbnail, product.code, product.stock)) {
             //antes de actualizar el producto, verificar que el campo "code" que puede venir modificado no sea igual a otros productos ya existentes
             const producto = this.#products.find(item => ((item.code === product.code) && (item.id != product.id)))
@@ -165,10 +161,10 @@ class ProductManager {
             const existingProductIdx = this.#products.findIndex(item => item.id === product.id)
 
             if (existingProductIdx < 0) {
-                throw 'Invalid product!'
+                throw 'Producto Inválido!'
             }
 
-            // actualizar los datos de ese product en el array
+            // actualizar los datos de ese producto en el array
             const productData = { ...this.#products[existingProductIdx], ...product }
             this.#products[existingProductIdx] = productData
 
@@ -176,9 +172,8 @@ class ProductManager {
         }
     }
 
-    //dado un ID eliminar del arreglo de productos un producto con dicho ID, caso contrario devolver msje de error
+    //dado un ID de producto, eliminar el mismo del arreglo de productos y del archivo correspondiente. Caso contrario devolver msje de error
     deleteProduct = async (idProd) => {
-        await this.getProducts()
         const producto = this.#products.find(item => item.id === idProd)
         if (producto) {
             this.#products = this.#products.filter(item => item.id !== idProd)
