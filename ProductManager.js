@@ -190,33 +190,45 @@ class ProductManager {
 testing = async () => {
     const productManager = new ProductManager('./Products.json')
 
-    let products = await productManager.inicializar()
+    await productManager.inicializar()
+    let products = await productManager.getProducts()
     console.log(products)
 
-    await productManager.addProduct("producto prueba",
+    await productManager.addProduct("producto prueba A",
         "Este es un producto prueba",
         200,
         "sin imagen",
-        "abc1235",
+        "abc123",
         25)
 
     let products2 = await productManager.getProducts()
     console.log(products2)
 
-    await productManager.addProduct("producto prueba",
+    await productManager.addProduct("producto prueba B",
         "Este es un producto prueba",
         200,
         "sin imagen",
-        "abc12345",
+        "abc1234",
         25)
 
     let products3 = await productManager.getProducts()
     console.log(products3)
 
-    let productA = productManager.getProductById(1)
-    if (productA) console.log(productA)
+    await productManager.addProduct("producto prueba C",
+        "Este es un producto prueba",
+        200,
+        "sin imagen",
+        "abc1234",
+        25)
 
-    let productB = productManager.getProductById(2)
+    let products4 = await productManager.getProducts()
+    console.log(products4)
+
+    let productA = productManager.getProductById(1)
+    if (productA) 
+        console.log(productA)
+
+    let productB = productManager.getProductById(1)
     if (productB) {
         console.log(productB)
 
@@ -224,7 +236,8 @@ testing = async () => {
         let products4 = await productManager.getProducts()
         console.log(products4)
     }
-    await productManager.deleteProduct(1)
+
+    await productManager.deleteProduct(2)
     let products5 = await productManager.getProducts()
     console.log(products5)
 
